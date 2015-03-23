@@ -1,0 +1,305 @@
+
+$color-1: #243040; // Ebony Clay
+$color-2: #9cb3a8; // Pewter
+$color-3: #ffffff; // White
+
+$primary-font: 'Open Sans', sans-serif;
+$secondary-font: 'Merriweather', serif;
+
+$animation-duration: 0.7s;
+
+$prefix-for-webkit:    true !default;
+$prefix-for-mozilla:   true !default;
+$prefix-for-microsoft: true !default;
+$prefix-for-opera:     true !default;
+$prefix-for-spec:      true !default;
+
+@mixin prefixer($property, $value, $prefixes) {
+  @each $prefix in $prefixes {
+    @if $prefix == webkit {
+      @if $prefix-for-webkit {
+        -webkit-#{$property}: $value;
+      }
+    } @else if $prefix == moz {
+      @if $prefix-for-mozilla {
+        -moz-#{$property}: $value;
+      }
+    } @else if $prefix == ms {
+      @if $prefix-for-microsoft {
+        -ms-#{$property}: $value;
+      }
+    } @else if $prefix == o {
+      @if $prefix-for-opera {
+        -o-#{$property}: $value;
+      }
+    } @else if $prefix == spec {
+      @if $prefix-for-spec {
+        #{$property}: $value;
+      }
+    } @else  {
+      @warn "Unrecognized prefix: #{$prefix}";
+    }
+  }
+}
+
+@mixin transform($property: none) {
+  @include prefixer(transform, $property, webkit moz ms o spec);
+}
+
+@mixin transform-origin($axes: 50%) {
+  @include prefixer(transform-origin, $axes, webkit moz ms o spec);
+}
+
+@mixin transition($properties...) {
+  $needs-prefixes: false;
+  $webkit: ();
+  $moz: ();
+  $spec: ();
+
+  @each $list in $properties {
+    @if nth($list, 1) == "transform" {
+      $needs-prefixes: true;
+      $list1: -webkit-transform;
+      $list2: -moz-transform;
+      $list3: ();
+
+      @each $var in $list {
+        $list3: join($list3, $var);
+
+        @if $var != "transform" {
+          $list1: join($list1, $var);
+          $list2: join($list2, $var);
+        }
+      }
+
+      $webkit: append($webkit, $list1);
+      $moz:    append($moz,    $list2);
+      $spec:   append($spec,   $list3);
+    } @else {
+      $webkit: append($webkit, $list, comma);
+      $moz:    append($moz,    $list, comma);
+      $spec:   append($spec,   $list, comma);
+    }
+  }
+
+  @if $needs-prefixes {
+    -webkit-transition: $webkit;
+       -moz-transition: $moz;
+            transition: $spec;
+  } @else {
+    @if length($properties) >= 1 {
+      @include prefixer(transition, $properties, webkit moz spec);
+    } @else {
+      $properties: all 0.15s ease-out 0s;
+      @include prefixer(transition, $properties, webkit moz spec);
+    }
+  }
+}
+
+@mixin transition-timing-function($motions...) {
+  @include prefixer(transition-timing-function, $motions, webkit moz spec);
+}
+
+@mixin center($xy:xy) {
+  @if $xy == xy {
+    left: 50%;
+    top: 50%;
+    bottom: auto;
+    right: auto;
+    @include transform(translateX(-50%) translateY(-50%));
+  }
+  @else if $xy == x {
+    left: 50%;
+    right: auto;
+    @include transform(translateX(-50%));
+  }
+  @else if $xy == y {
+    top: 50%;
+    bottom: auto;
+    @include transform(translateY(-50%));
+  }
+}
+
+a {
+	text-decoration: none;
+}
+
+body {
+  background-color: #9cb3a8;
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+
+  height: 100vh;
+  overflow-y: auto;
+  
+  -webkit-overflow-scrolling: touch;
+  padding: 200px 5%;
+  background-color: $color-2;
+  
+  @include transform(translateZ(0));
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  @include transition(transform $animation-duration);
+  @include transition-timing-function(cubic-bezier(.91,.01,.6,.99)); 
+
+  h1, p {
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 2.6rem;
+    margin-bottom: 1em;
+  }
+
+  p {
+    font-family: $secondary-font;
+    color: lighten($color-2, 20%);
+    max-width: 450px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .navigation-is-open & {
+    @include transform(translateX(100%));
+  }
+}
+
+.cd-nav-trigger {
+  position: fixed;
+  z-index: 3;
+  left: 5%;
+  top: 20px;
+  height: 54px;
+  width: 54px;
+  background-color: $color-1;
+  border-radius: 50%;
+  
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+
+  @include transition(transform $animation-duration - 0.2s);
+
+  .cd-nav-icon {
+    position: absolute;
+    @include center;
+    width: 22px;
+    height: 2px;
+    background-color: $color-3;
+
+    &::before, &:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100%; 
+      background-color: inherit;
+
+      @include transform(translateZ(0));
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+
+      @include transition(transform $animation-duration - 0.2s, width $animation-duration - 0.2s, top .3s);
+    }
+
+    &::before {
+      @include transform-origin(right top);
+      @include transform(translateY(-6px));
+    }
+
+    &::after {
+      @include transform-origin(right bottom);
+      @include transform(translateY(6px));
+    }
+
+  }
+
+  .no-touch &:hover .cd-nav-icon::after {
+    top: 2px;
+  } 
+
+  .no-touch &:hover .cd-nav-icon::before {
+    top: -2px;
+  } 
+
+  svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  circle {
+    @include transition(stroke-dashoffset $animation-duration - 0.3s 0s);
+  }
+
+  .navigation-is-open & {
+    @include transform(rotate(180deg));
+
+    .cd-nav-icon::after, 
+    .cd-nav-icon::before {
+      width: 50%;
+      @include transition(transform $animation-duration - 0.2s, width $animation-duration - 0.2s);
+    }
+
+    .cd-nav-icon::before {
+      @include transform(rotate(45deg));
+    }
+
+    .cd-nav-icon::after {
+      @include transform(rotate(-45deg));
+    }
+
+    .no-touch &:hover .cd-nav-icon::after,
+    .no-touch &:hover .cd-nav-icon::before {
+      top: 0;
+    } 
+
+    circle {
+      stroke-dashoffset: 0;
+      @include transition(stroke-dashoffset $animation-duration - 0.3s 0.3s);
+    }
+  }
+}
+
+.cd-nav {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: $color-1;
+  visibility: hidden;
+  @include transition(visibility 0s $animation-duration);
+
+  .cd-navigation-wrapper {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 40px 5% 40px calc(5% + 80px);
+    
+    @include transform(translateZ(0));
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    @include transform(translateX(-50%));
+    @include transition(transform $animation-duration);
+    @include transition-timing-function(cubic-bezier(.86,.01,.77,.78));
+  }
+
+  .navigation-is-open & {
+    visibility: visible;
+    @include transition(visibility 0s 0s);
+    
+    .cd-navigation-wrapper {
+      @include transform(translateX(0));
+      @include transition(transform $animation-duration - 0.2s);
+      @include transition-timing-function(cubic-bezier(.82,.01,.77,.78));
+    }
+  }
+}
