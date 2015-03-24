@@ -14,4 +14,9 @@ $(document).ready(function(){
 			});
 		}
 	});
+
+	$('.more-info').click(function(e){
+		e.preventDefault();
+	  	$(this).closest(".card").toggleClass('flip');
+	});
 });
