@@ -19,4 +19,13 @@ $(document).ready(function(){
 		e.preventDefault();
 	  	$(this).closest(".card").toggleClass('flip');
 	});
+
+	function setColumns() {
+	   $('.gallery').css('width', $('.main').width());
+	  var workColls = Math.floor($('.main').width() / 400)
+	      itemWidth = Math.floor($('.main').width() / workColls);
+	  $('.gallery > ul> li').css('width', itemWidth+'px');
+	};
+	setColumns();
+	//$(".main").mCustomScrollbar();
 });
