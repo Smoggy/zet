@@ -27,5 +27,8 @@ $(document).ready(function(){
 	  $('.gallery > ul> li').css('width', itemWidth+'px');
 	};
 	setColumns();
+	$(window).on('resize', function() {
+		setColumns();
+	});
 	//$(".main").mCustomScrollbar();
 });

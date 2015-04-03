@@ -403,6 +403,7 @@ body {
 
   .gallery {
     width: 100%;
+    margin-top: 60px;
 
     & > ul {
 
@@ -432,6 +433,8 @@ body {
           img {
             max-width: none;
             width: -webkit-calc(100% + 60px);
+            width: -moz-calc(100% + 60px);
+            width: calc(100% + 60px);
             height: auto;
             opacity: 1;
             @include transition(all  0.5s ease-in-out);
@@ -776,10 +779,14 @@ body {
   }
 }
 
+.clients-section {
+  background-color: white;
+}
+
 .cards-section {
   background: url(../images/cards-bg.jpg) center center no-repeat;
   background-attachment: fixed;
-  background-size: 100%;
+  background-size: cover;
   padding-bottom: 99px;
 
   .content-wrapper {
